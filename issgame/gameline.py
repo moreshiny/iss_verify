@@ -50,7 +50,8 @@ class GameLine():
         return self._line.split(']DT[')[1].split('/')[0]
 
     def get_id(self):
-        return self._line.split(']ID[')[1].split(']')[0] + "_" + self._line.split(']DT[')[1].split(']')[0]
+        return self._line.split(']ID[')[1].split(']')[0] + "_" + \
+            self._line.split(']DT[')[1].split(']')[0]
 
     def _getGrandScore(self, player):
         score = 0.0
@@ -80,13 +81,15 @@ class GameLine():
 
         score += max(suitscores.values())
 
-        if 'CJ' in self._read_hand(player) and 'SJ' in self._read_hand(player) and 'HJ' in self._read_hand(player) and 'DJ' in self._read_hand(player):
+        hand = self._read_hand(player)
+
+        if 'CJ' in hand and 'SJ' in hand and 'HJ' in hand and 'DJ' in hand:
             score += 2
-        elif 'SJ' in self._read_hand(player) and 'HJ' in self._read_hand(player) and 'DJ' in self._read_hand(player):
+        elif 'SJ' in hand and 'HJ' in hand and 'DJ' in hand:
             score += 0.5
-        elif 'CJ' in self._read_hand(player) and 'SJ' in self._read_hand(player) and 'HJ' in self._read_hand(player):
+        elif 'CJ' in hand and 'SJ' in hand and 'HJ' in hand:
             score += 1.5
-        elif 'CJ' in self._read_hand(player) and 'SJ' in self._read_hand(player):
+        elif 'CJ' in hand and 'SJ' in hand:
             score += 0.5
 
         score += 2 - len(suits_found)/2
@@ -120,4 +123,5 @@ class GameLine():
             self.saveScore(filename, i, append)
 
     def __str__(self):
-        return str(self.get_hand1()) + str(self.get_hand2()) + str(self.get_hand3()) + str(self.get_skat())
+        return str(self.get_hand1()) + str(self.get_hand2()) + \
+            str(self.get_hand3()) + str(self.get_skat())
