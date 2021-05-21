@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os
-import time
 
 import issgame
 
@@ -59,15 +58,6 @@ class TestExtractData(unittest.TestCase):
         issgame.extract_data(raw_data, converted_data)
         self.assertListEqual(list(open(converted_data)),
                              list(open(known_good_data)))
-
-    def test_extraction_performance_is_not_attrocious(self):
-        start_time = time.perf_counter()
-        input_filenames = ['data/iss-games-04-2021.sgf',
-                           'data/iss2-games-04-2021.sgf']
-        output_filename = 'data/iss_all_games.csv'
-        issgame.extract_data(input_filenames, output_filename, testing=True)
-        end_time = time.perf_counter()
-        self.assertLess(end_time - start_time, 0.4)
 
 
 if __name__ == "__main__":
