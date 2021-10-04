@@ -1,5 +1,58 @@
 #!/usr/bin/env python3
 
+from typing import Dict, List
+
+import pandas
+
+
+def get_score(hand):
+    score = 0.0
+    suitscores = {}
+    suitcount = {'C': 0, 'S': 0, 'H': 0, 'D': 0, 'J': 0, 'T': 0, 'A': 0}
+    suits_not_found = 0
+
+    for card in hand.split('_'):
+        # record quantity of each suit except jacks
+        if not card[1] == 'J':
+            try:
+                suitcount[card[0]] += 1
+            except KeyError:
+                suitcount[card[0]] = 1
+
+        # record quantity of jacks, aces, and tens
+        if card[1] in 'JAT':
+            try:
+                suitcount[card[1]] += 1
+            except KeyError:
+                suitcount[card[1]] = 1
+
+    for suit in ['C', 'S', 'H', 'D']:
+        suitscores[suit] = 0.0
+        suitscores[suit] += suitcount[suit] + \
+            2*suitcount['J'] + suitcount['A'] + suitcount['T']
+        if suitcount[suit] == 0:
+            suits_not_found += 1
+
+    score += max(suitscores.values())
+
+    if 'CJ' in hand and 'SJ' in hand:
+        if 'HJ' in hand:
+            if 'DJ' in hand:
+                score += 2
+            else:
+                score += 1.5
+        else:
+            score += 0.5
+    elif 'SJ' in hand and 'HJ' in hand and 'DJ' in hand:
+        score += 0.5
+
+    score += suits_not_found/2
+
+    grand_score = (5/3)*(suitcount['J'] + suitcount['A'] + suitcount['T'])
+
+    return round(max([score, grand_score]), 3)
+
+
 class GameLine():
     def __init__(self, line):
         # self._line = line
@@ -25,7 +78,7 @@ class GameLine():
             length = 10
         start = (2+(player-1)*30)
         end = start + length*3-1
-        return line.split(']MV[')[1][start:end].split('.')
+        return '_'.join(line.split(']MV[')[1][start:end].split('.'))
 
     def _read_player(self, line, player):
         return line.split(']P' + str(player-1) + '[')[1].split(']')[0]
@@ -76,53 +129,8 @@ class GameLine():
         return self._id
 
     def get_score(self, player):
-        score = 0.0
-        suitscores = {}
-        suitcount = {'C': 0, 'S': 0, 'H': 0, 'D': 0, 'J': 0, 'T': 0, 'A': 0}
-        suits_not_found = 0
-
         hand = self.get_hand(player)
-
-        for card in hand:
-            # record quantity of each suit except jacks
-            if not card[1] == 'J':
-                try:
-                    suitcount[card[0]] += 1
-                except KeyError:
-                    suitcount[card[0]] = 1
-
-            # record quantity of jacks, aces, and tens
-            if card[1] in 'JAT':
-                try:
-                    suitcount[card[1]] += 1
-                except KeyError:
-                    suitcount[card[1]] = 1
-
-        for suit in ['C', 'S', 'H', 'D']:
-            suitscores[suit] = 0.0
-            suitscores[suit] += suitcount[suit] + \
-                2*suitcount['J'] + suitcount['A'] + suitcount['T']
-            if suitcount[suit] == 0:
-                suits_not_found += 1
-
-        score += max(suitscores.values())
-
-        if 'CJ' in hand and 'SJ' in hand:
-            if 'HJ' in hand:
-                if 'DJ' in hand:
-                    score += 2
-                else:
-                    score += 1.5
-            else:
-                score += 0.5
-        elif 'SJ' in hand and 'HJ' in hand and 'DJ' in hand:
-            score += 0.5
-
-        score += suits_not_found/2
-
-        grand_score = (5/3)*(suitcount['J'] + suitcount['A'] + suitcount['T'])
-
-        return round(max([score, grand_score]), 3)
+        return get_score(hand)
 
     def get_session(self):
         file_string = self.get_date()
@@ -130,21 +138,25 @@ class GameLine():
             file_string += '-' + player
         return file_string
 
-    def get_file_string(self, playerpos):
+    def get_hands(self) -> pandas.DataFrame:
+        """
+        Provides a pandas DataFrame containing the main information for each
+        player.
 
-        file_string = ''
+        Returns:
+            pandas.DataFrame: Main information for each player.
+        """
+        return_dict = {'id': [], 'session': [],
+                       'player': [], 'position': [], 'hand': []}
 
-        file_string += self.get_id() + ','
-        file_string += self.get_session()
-        file_string = file_string + ',' + self.get_player(playerpos) + ',' + str(
-            playerpos) + ',' + str(self.get_score(playerpos))
-        return file_string
+        for playerpos in range(1, 4):
+            return_dict['id'].append(self.get_id())
+            return_dict['session'].append(self.get_session())
+            return_dict['player'].append(self.get_player(playerpos))
+            return_dict['position'].append(playerpos)
+            return_dict['hand'].append(self.get_hand(playerpos))
 
-    def get_all_file_strings(self):
-        string_list = []
-        for i in range(1, 4):
-            string_list.append(self.get_file_string(i))
-        return string_list
+        return pandas.DataFrame(return_dict)
 
     def __str__(self):
         return str(self.get_hand1()) + str(self.get_hand2()) + \

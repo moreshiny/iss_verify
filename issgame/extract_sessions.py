@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import pandas
 import issgame
 
 
 def extract_sessions(filename, player_name):
     player_hands = {}
-    games = open(filename)
-    lines = games.readlines()
 
-    for line in lines:
-        if player_name in line.split(',')[2]:
-            id_tag, session, player, position, score = line.split(',')
-            position = int(position)
-            score = float(score[:-1])
+    games = pandas.read_csv(filename, sep='\t')
+    # TODO: should not be calculated here and in load_hands
+    games.loc[:, 'score'] =\
+        [issgame.get_score(hand) for hand in games.loc[:, 'hand']]
+
+    for __i, line in games.iterrows():
+        if player_name == line.loc['player']:
+            session = line.loc['session']
+            player = line.loc['player']
+            score = line.loc['score']
 
             if session not in player_hands.keys():
                 player_hands[session] = []

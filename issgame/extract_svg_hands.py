@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import numpy as np
 import issgame
 from typing import List
 
 
-def extract_svg_hands(raw_files: List[str], converted_file: str, testing=False) -> None:
+def extract_svg_hands(raw_files: List[str],
+                      converted_file: str,
+                      testing: bool = False
+                      ) -> None:
     """
     Converts a list of .svg (ISS games) files into a a single csv-formatted
     file which contains information on each hand dealt to each player in each
@@ -18,19 +20,14 @@ def extract_svg_hands(raw_files: List[str], converted_file: str, testing=False) 
         converted_file (str): Output filename
         testing (bool, optional): Read a small part of files. Defaults to False.
     """
-    df_list = []
-    # skip all rows higher than 5000 if testing
-    skiprows = (lambda x: x < 5000) if testing else -1
+
+    hand_frames = []
+
     for raw_file in raw_files:
-        df_list.append(pd.read_csv(raw_file, header=None, skiprows=skiprows))
+        with open(raw_file) as in_file:
+            for line in in_file.readlines():
+                hand_frames.append(issgame.GameLine(line).get_hands())
 
-    infile = pd.concat(df_list)
+    all_hands = pd.concat(hand_frames)
 
-    outfile = pd.DataFrame([])
-    for __i, row in infile.iterrows():
-        temp_frame = pd.DataFrame(
-            issgame.GameLine(row[0]).get_all_file_strings()
-        )
-        outfile = pd.concat([outfile, temp_frame])
-
-    np.savetxt(converted_file, outfile.values, fmt="%s", delimiter=",")
+    all_hands.to_csv(converted_file, index=False, sep="\t")

@@ -8,7 +8,7 @@ import issgame
 
 class TestExtractSessions(unittest.TestCase):
     def test_creates_expected_file(self):
-        input_filename = 'issgame/tests/data/test_converted_games_known.csv'
+        input_filename = 'issgame/tests/data/test_converted_games_known.tsv'
         expected_file = 'issgame/tests/data/test_converted_games_known_zoot.csv'
         if os.path.exists(expected_file):
             os.remove(expected_file)
@@ -16,7 +16,7 @@ class TestExtractSessions(unittest.TestCase):
         self.assertTrue(os.path.isfile(expected_file))
 
     def test_writes_first_session_to_file(self):
-        input_filename = 'issgame/tests/data/test_converted_games_known.csv'
+        input_filename = 'issgame/tests/data/test_converted_games_known.tsv'
         expected_file = 'issgame/tests/data/test_converted_games_known_zoot.csv'
         if os.path.exists(expected_file):
             os.remove(expected_file)
