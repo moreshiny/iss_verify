@@ -137,7 +137,7 @@ class GameLine():
         file_string += self.get_id() + ','
         file_string += self.get_session()
         file_string = file_string + ',' + self.get_player(playerpos) + ',' + str(
-            playerpos) + ',' + str(self.get_score(playerpos)) + "\n"
+            playerpos) + ',' + str(self.get_score(playerpos))
         return file_string
 
     def get_all_file_strings(self):

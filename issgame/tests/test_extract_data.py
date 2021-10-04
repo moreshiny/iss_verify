@@ -12,7 +12,7 @@ class TestExtractData(unittest.TestCase):
         converted_data = 'issgame/tests/data/test_converted_games.csv'
         if os.path.isfile(converted_data):
             os.remove(converted_data)
-        issgame.extract_data(raw_data, converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
         self.assertTrue(os.path.isfile(converted_data))
 
     def test_output_file_contains_expected_number_of_fields(self):
@@ -20,7 +20,7 @@ class TestExtractData(unittest.TestCase):
         converted_data = 'issgame/tests/data/test_converted_games.csv'
         if os.path.isfile(converted_data):
             os.remove(converted_data)
-        issgame.extract_data(raw_data, converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
         with open(converted_data) as data_file:
             fields = data_file.readline().split(',')
         self.assertEqual(len(fields), 5)
@@ -30,7 +30,7 @@ class TestExtractData(unittest.TestCase):
         converted_data = 'issgame/tests/data/test_converted_games.csv'
         if os.path.isfile(converted_data):
             os.remove(converted_data)
-        issgame.extract_data(raw_data, converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
         expected_len = 0
         for data_file in raw_data:
             expected_len += 3*(len(list(open(data_file))))
@@ -42,7 +42,7 @@ class TestExtractData(unittest.TestCase):
         converted_data = 'issgame/tests/data/test_converted_games.csv'
         if os.path.isfile(converted_data):
             os.remove(converted_data)
-        issgame.extract_data(raw_data, converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
         expected_len = 0
         for data_file in raw_data:
             expected_len += 3*(len(list(open(data_file))))
@@ -55,7 +55,7 @@ class TestExtractData(unittest.TestCase):
         known_good_data = 'issgame/tests/data/test_converted_games_known.csv'
         if os.path.isfile(converted_data):
             os.remove(converted_data)
-        issgame.extract_data(raw_data, converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
         self.assertListEqual(list(open(converted_data)),
                              list(open(known_good_data)))
 
