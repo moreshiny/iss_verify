@@ -11,7 +11,7 @@ def extract_sessions(filename, player_name):
     games = pandas.read_csv(filename, sep='\t')
     # TODO: should not be calculated here and in load_hands
     games.loc[:, 'score'] =\
-        [issgame.get_score(hand) for hand in games.loc[:, 'hand']]
+        [issgame.hand_score(hand) for hand in games.loc[:, 'hand']]
 
     for __i, line in games.iterrows():
         if player_name == line.loc['player']:

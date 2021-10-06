@@ -214,6 +214,30 @@ class TestGameLine(unittest.TestCase):
         test_score = 13.333
         self.assertAlmostEqual(test_game.get_score(1), test_score)
 
+    def test_hand_as_list_raises_assert_error(self):
+        test_hand = ['C8', 'CJ', 'CT', 'D8',
+                     'DA', 'HA', 'HJ', 'HT', 'SA', 'ST']
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
+
+    def test_hand_too_short_raises_assert_error(self):
+        test_hand = 'HA_DK_S7_DJ_H7'
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
+
+    def test_hand_too_long_raises_assert_error(self):
+        test_hand = 'HA_DK_S7_DJ_H7_HJ_CA_SA_C9_CT_S7'
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
+
+    def test_hand_wrong_separator_raises_assert_error(self):
+        test_hand = 'HA DK S7 DJ H7 HJ CA SA C9 CT'
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
+
+    def test_hand_invalid_suit_raises_assert_error(self):
+        test_hand = 'HA_KK_S7_DJ_H7_HJ_CA_SA_C9_CT'
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
+
+    def test_hand_invalid_value_raises_assert_error(self):
+        test_hand = 'HA_DD_S7_DJ_H7_HJ_CA_SA_C9_CT'
+        self.assertRaises(AssertionError, issgame.hand_score, test_hand)
 
 if __name__ == "__main__":
     unittest.main()

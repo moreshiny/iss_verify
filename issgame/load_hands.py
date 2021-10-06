@@ -11,5 +11,5 @@ def load_hands(filename, player_pos):
     for __i, line in games.iterrows():
         if line.loc['position'] == player_pos:
             # TODO: should not be calculated here and in extract_sessions
-            return_list.append(float(issgame.get_score(line.loc['hand'])))
+            return_list.append(float(issgame.hand_score(line.loc['hand'])))
     return return_list

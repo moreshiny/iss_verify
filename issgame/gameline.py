@@ -5,27 +5,56 @@ from typing import Dict, List
 import pandas
 
 
-def get_score(hand):
+def hand_score(hand: str) -> float:
+    """
+    Calculates a score for the provided hand indicating the value of the hand
+    for winning a skat game.
+
+    Args:
+        hand (str): Represents a hand of 10 cards represented as two characters
+        separated by underscores:
+
+        "HQ_HA_H7_CT_ST_SK_SA_HJ_CJ_CK"
+
+        The first character indicates the suit of each card:
+            H is Hearts, C is Clubs, S is Spades, D is Diamonds
+        The second character indicates the value of each card:
+            A is Ace, K is King, Q is Qeen, J is Jack, T is 10, 9..7 are 9 to 7.
+
+    Returns:
+        float: A score according to Stegen Model for bidding in skat games:
+        https://www.skatfuchs.eu/SB-Kapitel3.pdf
+    """
+
+    assert type(hand) is str, "Hand should be a string"
+    assert len(hand) == 29, "Lenght of hand should be 10 cards"
+
+    for suit in range(0, 27, 3):
+        assert hand[suit] in 'HCSD', "Incorrect hand format"
+        assert hand[suit+1] in 'AKQJT987', "Incorrect hand format"
+        assert hand[suit+2] == '_', "Incorrect hand format"
+
     score = 0.0
     suitscores = {}
     suitcount = {'C': 0, 'S': 0, 'H': 0, 'D': 0, 'J': 0, 'T': 0, 'A': 0}
     suits_not_found = 0
 
     for card in hand.split('_'):
-        # record quantity of each suit except jacks
+        # quantity of each suit except jacks
         if not card[1] == 'J':
             try:
                 suitcount[card[0]] += 1
             except KeyError:
                 suitcount[card[0]] = 1
 
-        # record quantity of jacks, aces, and tens
+        # quantity of jacks, aces, and tens
         if card[1] in 'JAT':
             try:
                 suitcount[card[1]] += 1
             except KeyError:
                 suitcount[card[1]] = 1
 
+    # the score for each suit
     for suit in ['C', 'S', 'H', 'D']:
         suitscores[suit] = 0.0
         suitscores[suit] += suitcount[suit] + \
@@ -33,8 +62,10 @@ def get_score(hand):
         if suitcount[suit] == 0:
             suits_not_found += 1
 
+    # the highest scoring suit score
     score += max(suitscores.values())
 
+    # additional score factor for jack combinations
     if 'CJ' in hand and 'SJ' in hand:
         if 'HJ' in hand:
             if 'DJ' in hand:
@@ -46,16 +77,17 @@ def get_score(hand):
     elif 'SJ' in hand and 'HJ' in hand and 'DJ' in hand:
         score += 0.5
 
+    # additional score factor for missing suits
     score += suits_not_found/2
 
+    # alternative score for a grand game
     grand_score = (5/3)*(suitcount['J'] + suitcount['A'] + suitcount['T'])
 
     return round(max([score, grand_score]), 3)
 
 
 class GameLine():
-    def __init__(self, line):
-        # self._line = line
+    def __init__(self, line: str):
         self._date = line.split(']DT[')[1].split('/')[0]
         self._id = line.split(']ID[')[1].split(']')[0] + "_" + \
             line.split(']DT[')[1].split(']')[0]
@@ -130,7 +162,7 @@ class GameLine():
 
     def get_score(self, player):
         hand = self.get_hand(player)
-        return get_score(hand)
+        return hand_score(hand)
 
     def get_session(self):
         file_string = self.get_date()
