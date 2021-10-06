@@ -6,33 +6,26 @@ import pandas
 
 
 def hand_score(hand: str) -> float:
-    """
+    '''
     Calculates a score for the provided hand indicating the value of the hand
     for winning a skat game.
 
     Args:
         hand (str): Represents a hand of 10 cards represented as two characters
-        separated by underscores:
-
-        "HQ_HA_H7_CT_ST_SK_SA_HJ_CJ_CK"
-
-        The first character indicates the suit of each card:
-            H is Hearts, C is Clubs, S is Spades, D is Diamonds
-        The second character indicates the value of each card:
-            A is Ace, K is King, Q is Qeen, J is Jack, T is 10, 9..7 are 9 to 7.
+        as returned by GameLine._read_hand()
 
     Returns:
         float: A score according to Stegen Model for bidding in skat games:
         https://www.skatfuchs.eu/SB-Kapitel3.pdf
-    """
+    '''
 
-    assert type(hand) is str, "Hand should be a string"
-    assert len(hand) == 29, "Lenght of hand should be 10 cards"
+    assert type(hand) is str, 'Hand should be a string'
+    assert len(hand) == 29, 'Lenght of hand should be 10 cards'
 
     for suit in range(0, 27, 3):
-        assert hand[suit] in 'HCSD', "Incorrect hand format"
-        assert hand[suit+1] in 'AKQJT987', "Incorrect hand format"
-        assert hand[suit+2] == '_', "Incorrect hand format"
+        assert hand[suit] in 'HCSD', 'Incorrect hand format'
+        assert hand[suit+1] in 'AKQJT987', 'Incorrect hand format'
+        assert hand[suit+2] == '_', 'Incorrect hand format'
 
     score = 0.0
     suitscores = {}
@@ -57,8 +50,10 @@ def hand_score(hand: str) -> float:
     # the score for each suit
     for suit in ['C', 'S', 'H', 'D']:
         suitscores[suit] = 0.0
-        suitscores[suit] += suitcount[suit] + \
-            2*suitcount['J'] + suitcount['A'] + suitcount['T']
+        suitscores[suit] += suitcount[suit]\
+                         + 2*suitcount['J']\
+                         + suitcount['A']\
+                         + suitcount['T']
         if suitcount[suit] == 0:
             suits_not_found += 1
 
@@ -87,9 +82,27 @@ def hand_score(hand: str) -> float:
 
 
 class GameLine():
+    """
+    A data processing class that makes the elements of a .svg line available
+    through function calls.
+    """
+
     def __init__(self, line: str):
+        """
+        Initiates a GameLine class by extracting the following from the
+        provided .svg 'line':
+        _date: str Session date
+        _id: str Session ID
+        _player1: str Name of player 1
+        _player2: str Name of player 2
+        _player3: str Name of player 3
+        _hands: Dict[int, str] Maps players to hands
+
+        Args:
+            line (str): A .svg file line.
+        """
         self._date = line.split(']DT[')[1].split('/')[0]
-        self._id = line.split(']ID[')[1].split(']')[0] + "_" + \
+        self._id = line.split(']ID[')[1].split(']')[0] + '_' + \
             line.split(']DT[')[1].split(']')[0]
 
         self._player1 = self._read_player(line, 1)
@@ -102,7 +115,24 @@ class GameLine():
         self._hands[3] = self._read_hand(line, 3)
         self._hands[4] = self._read_hand(line, 4)
 
-    def _read_hand(self, line, player):
+    def _read_hand(self, line: str, player: int) -> str:
+        '''Extracts and returns the hand belonging to player a string from a line.
+
+        Args:
+            line (str): a .svg skat game line
+            player (int): The player (1, 2, 3 or 4 for skat)
+
+        Returns:
+            str: Represents a hand of 10 cards represented as two characters
+            separated by underscores:
+
+            'HQ_HA_H7_CT_ST_SK_SA_HJ_CJ_CK'
+
+            The first character indicates the suit of each card:
+                H is Hearts, C is Clubs, S is Spades, D is Diamonds
+            The second character indicates the value of each card:
+                A is Ace, K is King, Q is Qeen, J is Jack, T is 10, 9..7 are 9 to 7.
+        '''
         # player 4 is the skat
         if player == 4:
             length = 2
@@ -112,10 +142,21 @@ class GameLine():
         end = start + length*3-1
         return '_'.join(line.split(']MV[')[1][start:end].split('.'))
 
-    def _read_player(self, line, player):
+    def _read_player(self, line: str, player: int) -> str:
+        '''
+        Extracts and returns the name of the player given by 'player'.
+
+        Args:
+            line (str): .svg game line
+            player (int): Player number (1-3 or 4 for skat)
+
+        Returns:
+            str: A player name
+        '''
         return line.split(']P' + str(player-1) + '[')[1].split(']')[0]
 
-    def get_player(self, player):
+    def get_player(self, player: int) -> str:
+        '''Returns the name of player 'player' (1-3, not skat) as a string'''
         if player == 1:
             return self.get_player1()
         if player == 2:
@@ -123,63 +164,84 @@ class GameLine():
         if player == 3:
             return self.get_player3()
 
-    def get_player1(self):
+    def get_player1(self) -> str:
+        '''Returns the name of player 1 as a string'''
         return self._player1
 
-    def get_player2(self):
+    def get_player2(self) -> str:
+        '''Returns the name of player 2 as a string'''
         return self._player2
 
-    def get_player3(self):
+    def get_player3(self) -> str:
+        '''Returns the name of player 3 as a string'''
         return self._player3
 
-    def get_hand(self, player):
+    def get_hand(self, player: int) -> str:
+        '''Returns the hand of to player a string from a line.'''
         try:
             return self._hands[player]
         except KeyError:
             self._hands[player] = self._read_hand(player)
             return self._hands[player]
 
-    def get_hand1(self):
+    def get_hand1(self) -> str:
+        '''Returns the hand of player 1'''
         return self._hands[1]
 
-    def get_hand2(self):
+    def get_hand2(self) -> str:
+        '''Returns the hand of player 1'''
         return self._hands[2]
 
-    def get_hand3(self):
+    def get_hand3(self) -> str:
+        '''Returns the hand of player 1'''
         return self._hands[3]
 
-    def get_skat(self):
+    def get_skat(self) -> str:
+        '''Returns the skat as a two-card hand'''
         return self._hands[4]
 
-    def get_all(self):
-        return self.get_hand1() + self.get_hand2() + self.get_hand3() + self.get_skat()
+    def get_all(self) -> str:
+        '''Returns all hands and the skat'''
+        return self.get_hand1()\
+            + self.get_hand2()\
+            + self.get_hand3()\
+            + self.get_skat()
 
-    def get_date(self):
+    def get_date(self) -> str:
+        '''Returns the session date as a string'''
         return self._date
 
-    def get_id(self):
+    def get_id(self) -> str:
+        '''Returns the session id'''
         return self._id
 
-    def get_score(self, player):
+    def get_score(self, player: int) -> str:
+        '''Returns the score of the hand of player as calculated by hand_score()'''
         hand = self.get_hand(player)
         return hand_score(hand)
 
-    def get_session(self):
+    def get_session(self) -> str:
+        '''Returns a string representation of the session information'''
         file_string = self.get_date()
         for player in sorted([self.get_player1(), self.get_player2(), self.get_player3()]):
             file_string += '-' + player
         return file_string
 
     def get_hands(self) -> pandas.DataFrame:
-        """
+        '''
         Provides a pandas DataFrame containing the main information for each
         player.
 
         Returns:
             pandas.DataFrame: Main information for each player.
-        """
-        return_dict = {'id': [], 'session': [],
-                       'player': [], 'position': [], 'hand': []}
+        '''
+        return_dict = {
+            'id': [],
+            'session': [],
+            'player': [],
+            'position': [],
+            'hand': []
+        }
 
         for playerpos in range(1, 4):
             return_dict['id'].append(self.get_id())
@@ -189,7 +251,3 @@ class GameLine():
             return_dict['hand'].append(self.get_hand(playerpos))
 
         return pandas.DataFrame(return_dict)
-
-    def __str__(self):
-        return str(self.get_hand1()) + str(self.get_hand2()) + \
-            str(self.get_hand3()) + str(self.get_skat())
