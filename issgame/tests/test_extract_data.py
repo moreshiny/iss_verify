@@ -36,6 +36,15 @@ class TestExtractData(unittest.TestCase):
             expected_len += 3*(len(list(open(data_file))))
         self.assertEqual(len(list(open(converted_data))), expected_len)
 
+    def test_output_file_contains_3_lines_per_game_if_file_existed(self):
+        raw_data = ['issgame/tests/data/test_games.sgf']
+        converted_data = 'issgame/tests/data/test_converted_games.tsv'
+        issgame.extract_svg_hands(raw_data, converted_data)
+        expected_len = 1
+        for data_file in raw_data:
+            expected_len += 3*(len(list(open(data_file))))
+        self.assertEqual(len(list(open(converted_data))), expected_len)
+
     def test_output_file_contains_3_lines_per_game_2_files(self):
         raw_data = ['issgame/tests/data/test_games.sgf',
                     'issgame/tests/data/test_games2.sgf']
@@ -59,6 +68,15 @@ class TestExtractData(unittest.TestCase):
         self.assertListEqual(list(open(converted_data)),
                              list(open(known_good_data)))
 
+    def test_output_file_omits_corrupted_data_without_error(self):
+        raw_data = ['issgame/tests/data/test_games_corrupt.sgf']
+        converted_data = 'issgame/tests/data/test_converted_games_corrupt.tsv'
+        known_good_data = 'issgame/tests/data/test_converted_games_corrupt_known.tsv'
+        if os.path.isfile(converted_data):
+            os.remove(converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
+        self.assertListEqual(list(open(converted_data)),
+                             list(open(known_good_data)))
 
 if __name__ == "__main__":
     unittest.main()
