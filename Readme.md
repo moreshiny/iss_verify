@@ -18,6 +18,8 @@ import statsmodels.stats.multitest as multitest
 import scipy.stats as stats
 import numpy
 import matplotlib.pyplot as pyplot
+# set pyplot to the standard background
+pyplot.style.use('fivethirtyeight')
 pyplot.rcParams['figure.dpi'] = 150
 pyplot.rcParams['savefig.dpi'] = 150
 ```
@@ -115,11 +117,13 @@ if not os.path.exists(output_filename):
 
 ```
 
-This reduces the data to only the required fields by calculating a score for each hand of each player:
+This reduces the data to only the required fields by extracting the hand of each player:
 
 
 ```python
 with open(output_filename) as games_file:
+    line = games_file.readline()
+    # get the second line
     line = games_file.readline()
     print(line)
     id_tag, session, player, position, hand_score = line.split('\t')
@@ -128,18 +132,17 @@ with open(output_filename) as games_file:
         '\nSession:', session,
         '\nPlayer:', player,
         '\nPosition:', position,
-        '\nHand Score:', hand_score,
+        '\nHand:', hand_score,
     )
-
 ```
 
-    id	session	player	position	hand
+    5557737_2019-01-01/00:00:35/UTC	2019-01-01-Cardano-theCount-xskat	Cardano	1	HJ_DT_D7_HQ_DA_CJ_HK_CQ_C7_DQ
     
-    ID: id 
-    Session: session 
-    Player: player 
-    Position: position 
-    Hand Score: hand
+    ID: 5557737_2019-01-01/00:00:35/UTC 
+    Session: 2019-01-01-Cardano-theCount-xskat 
+    Player: Cardano 
+    Position: 1 
+    Hand: HJ_DT_D7_HQ_DA_CJ_HK_CQ_C7_DQ
     
 
 
@@ -149,7 +152,6 @@ For the analysis we will focus on a single plyer (PeterB) and the hands dealt to
 ```python
 input_filename = output_filename
 issgame.extract_sessions(input_filename, 'PeterB')
-
 ```
 
 
@@ -171,18 +173,18 @@ with open(input_filename[:-4] + '_PeterB.csv') as games_file:
     )
 ```
 
-    PeterB,2021-01-01-PeterB-kermit-theCount,10.0,8.0,10.0,11.5,8.0,10.0,7.0,8.0,4.0,11.0,9.5,6.0,8.0,8.0,10.0,9.5,6.0,9.0,6.0,9.0,11.667,10.0
+    PeterB,2020-11-05-PeterB-kasparo-zoot,7.0
     
-    PeterB,2021-01-02-PeterB-kermit-theCount,7.0,10.0,9.0,6.0,7.0,9.0,8.0,9.0,7.0,8.5,10.0,8.0
+    PeterB,2020-11-07-PeterB-jellyfi-kasparo,4.0,10.5,11.0,10.5,9.0,9.0,8.0,6.0,10.5,10.0,8.5,10.5,12.0,9.0
     
-    PeterB,2021-01-02-PeterB-bernie-xskat,7.0,9.5,14.0,8.0,8.0,7.0,7.0,6.0,9.0,11.5,8.0,8.0,9.0,11.0,10.0,6.0,12.5,8.5,8.0,7.0,10.0,10.0,7.0,10.5,10.0,10.5,8.0,11.0,10.0,10.5,9.0,9.0
+    PeterB,2020-11-14-PeterB-jellyfi-kasparo,7.0,11.0,13.0,10.5,7.0,9.0,11.0,10.0,6.0,13.0,8.0,9.0
     
-    PeterB,2021-01-02-PeterB-theCount-theCount:2,8.0,7.0,7.0,12.5,8.0,8.0,8.0,7.0,10.0,9.5,8.0,8.5,10.0,8.5,8.0,8.0,9.0,9.0,8.5,6.0,10.0
+    PeterB,2020-11-21-PeterB-jellyfi-kasparo,9.5,6.0,9.0,8.0,9.0,11.0,9.0,6.0,12.5,6.5,6.0,9.5
     
     
     Player: PeterB 
-    Session: 2021-01-02-PeterB-theCount-theCount:2 
-    Hand scores: ['8.0', '7.0', '7.0', '12.5', '8.0', '8.0', '8.0', '7.0', '10.0', '9.5', '8.0', '8.5', '10.0', '8.5', '8.0', '8.0', '9.0', '9.0', '8.5', '6.0', '10.0']
+    Session: 2020-11-21-PeterB-jellyfi-kasparo 
+    Hand scores: ['9.5', '6.0', '9.0', '8.0', '9.0', '11.0', '9.0', '6.0', '12.5', '6.5', '6.0', '9.5']
 
 
 ## Session Means Compared
@@ -237,7 +239,7 @@ Since we do not know the standard deviation of the population and the session sa
 print(session_n)
 ```
 
-    [22, 12, 32, 21, 20, 22, 31, 70, 111, 48, 26, 91, 75, 40, 39, 20, 20, 29, 10, 20, 20, 21, 20, 10, 16, 12, 20, 40, 30, 20, 20, 11, 10, 40, 50, 14, 52, 40, 100, 15, 65, 50, 45, 12, 20, 24, 42, 10, 11]
+    [14, 12, 12, 12, 25, 12, 12, 24, 56, 30, 88, 19, 60, 14, 22, 12, 32, 21, 20, 22, 31, 70, 111, 48, 26, 91, 75, 40, 39, 20, 20, 29, 10, 20, 20, 21, 20, 10, 16, 12, 20, 40, 30, 20, 20, 11, 10, 40, 50, 14, 52, 40, 100, 15, 65, 50, 45, 12, 20, 24, 42, 10, 11]
 
 
 We also cannot assume that the variance of the sessions and overall sample are the same we cannot use a Student's t-test, so we use an independent two-sample Welch's t-test instead. Since we are testing for equality, we use a two-tailed measure (the session mean could be lower or higher than overall sample mean). The following additional assumptions must be met for this test:
@@ -263,9 +265,7 @@ pyplot.show()
 ```
 
 
-    
 ![png](Readme_files/Readme_22_0.png)
-    
 
 
 Applying a square root transformation to the data corrects for this:
@@ -279,9 +279,7 @@ pyplot.show()
 ```
 
 
-    
 ![png](Readme_files/Readme_24_0.png)
-    
 
 
 In order to fulfill the requirement of normality, we transform (by taking the square root) both the dataset of all hands and the dataset of PeterB's sessions.
@@ -309,9 +307,7 @@ pyplot.show()
 ```
 
 
-    
 ![png](Readme_files/Readme_28_0.png)
-    
 
 
 
@@ -354,9 +350,7 @@ pyplot.show()
 ```
 
 
-    
 ![png](Readme_files/Readme_30_0.png)
-    
 
 
 We fail to reject the default hypothesis that the population from which the samples were drawn is normally distributed.
@@ -409,9 +403,7 @@ pyplot.show()
 ```
 
 
-    
 ![png](Readme_files/Readme_32_0.png)
-    
 
 
 ## Conclusion
