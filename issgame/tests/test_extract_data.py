@@ -78,5 +78,15 @@ class TestExtractData(unittest.TestCase):
         self.assertListEqual(list(open(converted_data)),
                              list(open(known_good_data)))
 
+    def test_output_file_omits_corrupted_data_without_error_2(self):
+        raw_data = ['issgame/tests/data/test_games_corrupt2.sgf']
+        converted_data = 'issgame/tests/data/test_converted_games_corrupt2.tsv'
+        known_good_data = 'issgame/tests/data/test_converted_games_corrupt2_known.tsv'
+        if os.path.isfile(converted_data):
+            os.remove(converted_data)
+        issgame.extract_svg_hands(raw_data, converted_data)
+        self.assertListEqual(list(open(converted_data)),
+                             list(open(known_good_data)))
+
 if __name__ == "__main__":
     unittest.main()

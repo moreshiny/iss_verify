@@ -21,11 +21,13 @@ def extract_svg_hands(raw_files: List[str],
         converted_file (str): Output filename
         testing (bool, optional): Read a small part of files. Defaults to False.
     """
+    CHUNKSIZE = 128
+
     include_header_line = True
     if os.path.isfile(converted_file):
         os.remove(converted_file)
     for raw_file in raw_files:
-        reader = pd.read_csv(raw_file, chunksize=5, header=None)
+        reader = pd.read_csv(raw_file, chunksize=CHUNKSIZE, header=None)
 
         for chunk in reader:
             chunk.columns = ['imported_line']

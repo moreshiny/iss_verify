@@ -2,5 +2,5 @@
 __pycache__ 
 *.code-workspace
 *.env
-data/
-temp/
+data
+temp
